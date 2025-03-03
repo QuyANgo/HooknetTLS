@@ -1,0 +1,97 @@
+Hooknet-TLS pipeline for individual wsi
+
+
+#### A. Convert qptiff to tif with 0.5um and 2um resolutions as input to HooknetTLS (save_image_at_spacing.py by Mart van Rijthoven)
+
+ngoq@isis.unige.ch@lmedlab510:~$ source ./Pyvips/bin/activate
+(Pyvips) ngoq@isis.unige.ch@lmedlab510:~$ pip install pyvips
+
+(Pyvips) ngoq@isis.unige.ch@lmedlab510:~$ python /data/qango/SCRIPTS/save_image_at_spacing.py \
+	-i /data/example/slides_to_convert/Lung_40X_redo_Scan1.qptiff \
+	-s 0.5 -t /tmp -o /data/example/converted/Lung_40X_redo_Scan1_converted
+
+(Pyvips) ngoq@isis.unige.ch@lmedlab510:~$ deactivate
+
+ngoq@isis.unige.ch@lmedlab510:~$ mv /data/example/converted/Lung_40X_redo_Scan1_converted/Lung_40X_redo_Scan1.tif /data/example/converted
+ngoq@isis.unige.ch@lmedlab510:~$ rm -r /data/example/converted/Lung_40X_redo_Scan1_converted
+
+
+
+#### B. Generate tissue mask with tiatoolbox and pyvips by using the tiatoolbox_pyvips docker image
+## tif slide must be in the mounted volume ("/data/example/converted"), and the output tissue mask will be written there as well.
+
+ngoq@isis.unige.ch@lmedlab510:~$ docker run -it --rm -v /data/example/converted:/tmp tiatoolbox_pyvips \
+	python TissueMask.py \
+	-i /tmp/Lung_40X_redo_Scan1.tif \
+	-o /tmp/Lung_40X_redo_Scan1_tissueMask.tif
+
+ngoq@isis.unige.ch@lmedlab510:~$ mkdir /data/example/hooknettls_output/Lung_40X_redo_Scan1
+
+
+docker run -it --rm -v /data/example/converted:/tmp tiatoolbox_pyvips \
+        python TissueMask.py \
+        -i /tmp/HE2mIF_2X1.1_HE_40x_MVR.tif \
+        -o /tmp/HE2mIF_2X1.1_HE_40x_MVR_tissueMask.tif
+
+mkdir /data/example/hooknettls_output/HE2mIF_2X1.1_HE_40x_MRV
+
+
+
+#### C. Run hooknettls !!!!!! MAKE SURE the weights.h5 file is inside the directory of the slide & the tissue mask!!!
+
+ngoq@isis.unige.ch@lmedlab510:~$ mkdir /data/example/hooknettls_output/Lung_40X_redo_Scan1/images/tls-gc
+
+ngoq@isis.unige.ch@lmedlab510:~$
+docker run --runtime=nvidia --shm-size 16G --gpus all -it \
+	-v /data/example/converted:/tmp -v /data/example/hooknettls_output/Lung_40X_redo_Scan1:/output hooknettls \
+	python3 -m hooknettls \
+	hooknettls.default.image_path=/tmp/Lung_40X_redo_Scan1.tif \
+	hooknettls.default.mask_path=/tmp/Lung_40X_redo_Scan1_tissueMask.tif \
+	hooknettls.default.model_weights=/tmp/weights.h5
+
+
+# What works: 1O2, 1S2, 2X1, 2Y1, 2Z1, 3D1, 3E1, 3F1, 3P1
+
+
+
+# Remove all docker containers from image hooknettls
+docker ps -a | awk '{ print $1,$2 }' | grep hooknettls | awk '{print $1 }' | xargs -I {} docker rm {}
+
+
+
+
+
+# Inside hooknettls container:
+
+## Step 2:
+cp /tmp/weights.h5 /home/user/pathology-hooknet-tls
+
+root@44ec325b0935:/#
+
+## Step3:
+root@be447042e1fe:/#
+python3 -m hooknettls \
+	hooknettls.default.image_path=/tmp/HE2mIF_2Z1.1_HE_40x.tif \
+	hooknettls.default.mask_path=/tmp/HE2mIF_2Z1.1_HE_40x_tissueMask.tif
+
+root@44ec325b0935:/# Ctr-D
+
+
+
+#### D. Copy results from docker container to server folder
+
+#ngoq@isis.unige.ch@lmedlab510:~$ mkdir /data/example/converted/240429_Tumor_manualincubate_Scan1.er_dockerOutput
+
+#ngoq@isis.unige.ch@lmedlab510:~$ docker cp 44ec325b0935:/output/ /data/example/converted/240429_Tumor_manualincubate_Scan1.er_dockerOutput
+
+## Step4:
+
+ngoq@isis.unige.ch@lmedlab510:~$ 
+docker cp 959d7ff6e660:/output/ /data/example/hooknettls_docker_output/HE2mIF_2Y1.1_HE_40x
+
+
+
+
+#### DONE!!!!!!!!!!!!!!!
+
+

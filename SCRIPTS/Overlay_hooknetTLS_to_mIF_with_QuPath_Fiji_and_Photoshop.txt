@@ -1,0 +1,64 @@
+# Procedure to overlay hooknetTLS results with mIF
+Author: Quy A. Ngo
+Date: 2025-Feb-05
+
+1) Create new folder for the image set
+
+* In QuPath:
+2) In QuPath, "Create project", then choose this new folder
+
+3) Drag the 3 images to be overlayed into QuPath (HE, mIF & hooknetTLS result)
+
+4) In QuPath: View -> Multi-view -> Set grid size -> Grid 2x2
+
+5) For each window in QuPath: double-click the window, then double-click on the image to be appeared in that window
+
+6) In QuPath: Click on the image with the highest resolution, then View -> Multi-view -> Match viewer resolutions (to bring all other images to the same 5um resolution)
+
+7) For hooknetTLS and mIF images: click on the icon "Brightness & contrast" (also from "View")
+7a) hooknetTLS image: choose cyan color and adjust Viewer gamma / Channel min / Channel max for the signal to be visible
+7b) mIF: select only Opal 690 (red C3, for SOX10), Opal 780 (white C6, for CD20) & Opal 520 (C7, for CD3), change Opal 780 from white to magenta
+
+8) To save each image:
+- Double-click on the window with the image to be saved, File -> Export snapshot -> Current viewer content
+- Choose TIFF and the file name to save, then click OK
+
+
+* In Fiji: if image cropping is needed
+9) Drag all 3 above saved images to Fiji icon to open them
+
+10) For HE image: click on rectangle and select the visible tissue part
+
+11) For each of the other 2 images: click on the image window, Edit -> Selection -> Restore Selection (to select the same rectangle as the HE image)
+
+12) For each of the 3 images: Image -> Crop (Ctr-Shft-X)
+
+13) For each of the 3 cropped images: Save As -> Tiff... -> choose file name with "_crop" added
+
+
+* In Photoshop:
+14) Open sample_mIF_crop.tif (or sample_mIF.tif if not cropped)
+
+15) Drag sample_hooknetTLS_crop.tif (or sample_hooknetTLS.tif if not cropped) and drop it to the opened image (this will create a 2nd layer of this image above the mIF image)
+This will also automatically open the Move tool (a rectangle with a diagonal cross) selecting the 2nd layer. If not, Crt-T will activate this Move tool.
+
+16) In the right panel "Layers", choose the drop-down menu with "Normal" and change it to "Screen".
+This will overlay the 2nd layer to the 1st layer.
+
+17) If using the mouse: hold down Shift to move the 2nd layer to overlay to the correct position on the 1st layer.
+If using the mouse pad on laptop: hold down the left button/bar or use the 4 arrow buttons to do such movement.
+
+18) Once satisfied with the overlay, click on the bar "Done".
+
+19) Save As this image with a new file name (sample_mIF_hooknetTLS_overlay_crop.tif or sample_mIF_hooknetTLS_overlay.tif) & the following TIFF options:
+- Image Compression: None
+- Pixel Order : Interleaved
+- Byte Order : IBM PC
+- Layer Compression : RLE (slower saves, bigger files)
+
+20) Verify the 3 saved tif files in any image opener.
+
+
+
+
+

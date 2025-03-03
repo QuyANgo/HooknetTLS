@@ -1,0 +1,29 @@
+Analysis Pipeline for TLS project - AIM 1
+Detection of TLS on H&E WSI
+
+Author: Quy A. Ngo
+Contributors: Mart van Rijthoven, Phil Cheng, Daniel Abler, Jonatan Bonjour
+Date: 2025-Feb-05
+
+
+All data and scripts are stored in the directory /data/qango of the blade server lmedlab510.unige.ch
+
+
+1. Convert qptiff to tif with 0.5um and 2um resolutions as subsequent input to Hooknet-TLS in step 3 below:
+Run this bash script:
+/qango/data/SCRIPTS/TLS.Aim1_1_Convert_qptiff_to_tif_20240620.bash
+NOTE: This script calls the Python script of Mart van Rijthoven "save_image_at_spacing.py"
+
+
+2. Generate tissue mask with tiatoolbox and pyvips by using the tiatoolbox_pyvips docker image
+NOTE: The converted tif slides must be in the mounted volume ("/data/example/converted"), and the output tissue masks will be written there as well.
+
+Run this bash script:
+/qango/data/SCRIPTS/TLS.Aim1_2_TissueMask_batch_20240620.bash
+
+
+3. Run HooknetTLS 
+NOTE: Make sure the weights.h5 file is inside the directory of the slide & the tissue mask!
+
+Run this bash script:
+/qango/data/SCRIPTS/TLS.Aim1_3_HooknetTLS_batch_20240620.bash
